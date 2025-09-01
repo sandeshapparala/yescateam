@@ -6,7 +6,10 @@ export default function Carousel3DDemo() {
       backgroundColor: '#171717', 
       color: 'white', 
       fontFamily: 'sans-serif',
-      minHeight: '100vh' 
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     }}>
       <Carousel3D />
     </div>

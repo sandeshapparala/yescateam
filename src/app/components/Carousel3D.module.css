@@ -1,10 +1,10 @@
 .container {
   width: 100%;
-  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  font-family: 'DIN Pro', 'Arial', sans-serif;
 }
 
 .carouselContainer {
@@ -14,7 +14,7 @@
   flex: none;
   flex-direction: column;
   flex-wrap: nowrap;
-  gap: 0px;
+  gap: 0;
   height: min-content;
   justify-content: center;
   overflow: visible;
@@ -29,6 +29,9 @@
   user-select: none;
   touch-action: none;
   transform: perspective(500px);
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
 }
 
 .carousel {
@@ -46,6 +49,9 @@
   position: relative;
   transform-style: preserve-3d;
   width: 1200px;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
 }
 
 .carousel:active {
@@ -56,7 +62,7 @@
   align-content: center;
   align-items: center;
   display: flex;
-  flex: 1 0 0px;
+  flex: 1 0 0;
   flex-direction: column;
   flex-wrap: nowrap;
   gap: 10px;
@@ -67,6 +73,9 @@
   position: relative;
   transform-style: preserve-3d;
   width: 1px;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
 }
 
 .arm {
@@ -86,6 +95,9 @@
   transform-style: preserve-3d;
   width: 1400px;
   z-index: 1;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
 }
 
 .videoContainer {
@@ -121,32 +133,42 @@
 .dot {
   width: 12px;
   height: 12px;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: hsl(var(--muted-foreground) / 0.3);
   border-radius: 50%;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
   border: none;
   outline: none;
 }
 
 .dot:hover {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: hsl(var(--muted-foreground) / 0.5);
+  transform: scale(1.1);
 }
 
 .dot.active {
-  background-color: white;
+  background-color: hsl(var(--primary));
+  transform: scale(1.2);
 }
 
-/* Responsive styles */
+/* Responsive styles - maintaining 3D structure */
 @media (max-width: 1200px) {
+  .preserve3d {
+    transform: perspective(400px);
+  }
+  
   .carousel {
-    width: 100%;
-    max-width: 1000px;
+    width: 1000px;
   }
   
   .arm {
     width: 1200px;
     left: calc(50% - 600px);
+  }
+  
+  .videoContainer {
+    width: 220px;
+    height: 320px;
   }
 }
 
@@ -155,33 +177,69 @@
     padding: 10px;
   }
   
-  .carousel {
-    max-width: 800px;
+  .preserve3d {
+    transform: perspective(350px);
   }
   
+  .carousel {
+    width: 800px;
+  }
+  
+  /* Keep arm width large enough to maintain 3D cylinder structure */
   .arm {
     width: 1000px;
     left: calc(50% - 500px);
+    height: 200px;
+    top: calc(50% - 100px);
   }
   
   .videoContainer {
-    width: 200px;
-    height: 280px;
+    width: 180px;
+    height: 260px;
   }
 }
 
 @media (max-width: 480px) {
-  .carousel {
-    max-width: 600px;
+  .preserve3d {
+    transform: perspective(300px);
   }
   
+  .carousel {
+    width: 600px;
+  }
+  
+  /* Maintain sufficient arm width for 3D structure even on small screens */
   .arm {
     width: 800px;
     left: calc(50% - 400px);
+    height: 160px;
+    top: calc(50% - 80px);
   }
   
   .videoContainer {
-    width: 160px;
-    height: 220px;
+    width: 140px;
+    height: 200px;
+  }
+}
+
+@media (max-width: 360px) {
+  .preserve3d {
+    transform: perspective(250px);
+  }
+  
+  .carousel {
+    width: 500px;
+  }
+  
+  .arm {
+    width: 700px;
+    left: calc(50% - 350px);
+    height: 140px;
+    top: calc(50% - 70px);
+  }
+  
+  .videoContainer {
+    width: 120px;
+    height: 170px;
   }
 }

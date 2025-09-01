@@ -2,11 +2,44 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { client } from '@/sanity/lib/client';
+import { urlFor } from '@/sanity/lib/image';
 import styles from './Carousel3D.module.css';
 
 interface CarouselImage {
   src: string;
   alt: string;
+}
+
+interface SanityImage {
+  _type: 'image';
+  asset: {
+    _ref: string;
+    _type: 'reference';
+  };
+  alt?: string;
+}
+
+interface SanityCard {
+  image1?: SanityImage;
+  text?: string;
+}
+
+interface SanityCarousel3D {
+  card1?: SanityCard;
+  card2?: SanityCard;
+  card3?: SanityCard;
+  card4?: SanityCard;
+  card5?: SanityCard;
+  card6?: SanityCard;
+  card7?: SanityCard;
+  card8?: SanityCard;
+  card9?: SanityCard;
+  card10?: SanityCard;
+  card11?: SanityCard;
+  card12?: SanityCard;
+  card13?: SanityCard;
+  card14?: SanityCard;
 }
 
 interface Carousel3DProps {
@@ -74,7 +107,7 @@ const defaultImages: CarouselImage[] = [
 ];
 
 const Carousel3D: React.FC<Carousel3DProps> = ({ 
-  images = defaultImages, 
+  images, 
   className = '' 
 }) => {
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -83,23 +116,86 @@ const Carousel3D: React.FC<Carousel3DProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [currentRotation, setCurrentRotation] = useState(0);
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const [sanityImages, setSanityImages] = useState<CarouselImage[]>(defaultImages);
+  const [loading, setLoading] = useState(true);
 
   const angleStep = 30; // 30 degrees per step (360 / 12 arms)
   const totalArms = 7; // Number of arms in the carousel
 
-  // Create arms data with proper image distribution
+  // Fetch Sanity data
+  useEffect(() => {
+    const fetchCarouselData = async () => {
+      try {
+        const query = `*[_type == "carousel3d"][0] {
+          card1 { image1, text },
+          card2 { image1, text },
+          card3 { image1, text },
+          card4 { image1, text },
+          card5 { image1, text },
+          card6 { image1, text },
+          card7 { image1, text },
+          card8 { image1, text },
+          card9 { image1, text },
+          card10 { image1, text },
+          card11 { image1, text },
+          card12 { image1, text },
+          card13 { image1, text },
+          card14 { image1, text }
+        }`;
+        
+        const data: SanityCarousel3D = await client.fetch(query);
+        
+        if (data) {
+          const processedImages: CarouselImage[] = [];
+          
+          // Process all 14 cards
+          for (let i = 1; i <= 14; i++) {
+            const cardKey = `card${i}` as keyof SanityCarousel3D;
+            const card = data[cardKey];
+            
+            if (card?.image1?.asset) {
+              processedImages.push({
+                src: urlFor(card.image1).width(800).height(600).url(),
+                alt: card.image1.alt || card.text || `Card ${i} Image`
+              });
+            }
+          }
+          
+          // If we have Sanity images, use them; otherwise keep defaults
+          if (processedImages.length > 0) {
+            setSanityImages(processedImages);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching carousel data:', error);
+        // Keep using default images on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Use passed images prop if available, otherwise fetch from Sanity
+    if (images) {
+      setSanityImages(images);
+      setLoading(false);
+    } else {
+      fetchCarouselData();
+    }
+  }, [images]);
+
+  // Create arms data with perfect 1:1 image distribution (7 arms × 2 images = 14 images)
   const createArmsData = () => {
     const arms = [];
     const rotations = [90, 120, 150, 180, 0, 30, 60];
     
     for (let i = 0; i < totalArms; i++) {
-      const leftImageIndex = (i * 2) % images.length;
-      const rightImageIndex = (i * 2 + 1) % images.length;
+      const leftImageIndex = (i * 2) % sanityImages.length;
+      const rightImageIndex = (i * 2 + 1) % sanityImages.length;
       
       arms.push({
         rotation: rotations[i],
-        leftImage: images[leftImageIndex],
-        rightImage: images[rightImageIndex]
+        leftImage: sanityImages[leftImageIndex],
+        rightImage: sanityImages[rightImageIndex]
       });
     }
     
@@ -135,6 +231,7 @@ const Carousel3D: React.FC<Carousel3DProps> = ({
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
     setIsDragging(true);
     setStartPosition({ 
       x: e.touches[0].clientX, 
@@ -156,7 +253,8 @@ const Carousel3D: React.FC<Carousel3DProps> = ({
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!isDragging || !armsRef.current) return;
-
+      
+      e.preventDefault();
       const deltaX = e.touches[0].clientX - startPosition.x;
       const newRotation = currentRotation + deltaX * 0.5;
       
@@ -191,7 +289,7 @@ const Carousel3D: React.FC<Carousel3DProps> = ({
 
     if (isDragging) {
       window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('touchmove', handleTouchMove, { passive: true });
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
       window.addEventListener('mouseup', handleMouseUp);
       window.addEventListener('touchend', handleTouchEnd);
     }
@@ -209,8 +307,20 @@ const Carousel3D: React.FC<Carousel3DProps> = ({
     goToIndex(0, false);
   }, []);
 
+  if (loading) {
+    return (
+      <div className={`${styles.container} ${className}`}>
+        <div className={styles.carouselContainer}>
+          <div className="flex items-center justify-center h-64">
+            <div className="text-lg">Loading carousel...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`${styles.container} ${className} hidden`}>
+    <div className={`${styles.container} ${className} `}>
       <div className={styles.carouselContainer}>
         <div className={styles.preserve3d}>
           <div
