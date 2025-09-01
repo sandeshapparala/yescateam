@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Carousel from code.html</title>
+    <style>
+      /* Extracted styles from code.html */
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #171717;
+        color: white;
+        font-family: sans-serif;
+      }
+
+      .container {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .carousel-container {
+        align-content: center;
+        align-items: center;
+        display: flex;
+        flex: none;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 0px;
+        height: min-content;
+        justify-content: center;
+        overflow: visible;
+        padding: 19px 0;
+        position: relative;
+        width: 100%;
+        z-index: 9;
+      }
+
+      .carousel {
+        align-content: center;
+        align-items: center;
+        cursor: grab;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 10px;
+        height: min-content;
+        justify-content: center;
+        overflow: visible;
+        padding: 0;
+        position: relative;
+        transform-style: preserve-3d;
+        width: 1200px;
+      }
+
+      .arms {
+        align-content: center;
+        align-items: center;
+        display: flex;
+        flex: 1 0 0px;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 10px;
+        height: min-content;
+        justify-content: center;
+        overflow: visible;
+        padding: 0;
+        position: relative;
+        transform-style: preserve-3d;
+        width: 1px;
+      }
+
+      .arm {
+        align-content: center;
+        align-items: center;
+        display: flex;
+        flex: none;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        height: 240px;
+        justify-content: space-between;
+        overflow: visible;
+        padding: 0;
+        position: absolute;
+        top: calc(50.00000000000002% - 240px / 2);
+        left: calc(50.00000000000002% - 1400px / 2);
+        transform-style: preserve-3d;
+        width: 1400px;
+        z-index: 1;
+      }
+
+      .video-container {
+        flex: none;
+        height: 370px;
+        position: relative;
+        width: 260px;
+      }
+
+      .video-container video,
+      .video-container img {
+        cursor: auto;
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        display: block;
+        object-fit: cover;
+        background-color: rgba(0, 0, 0, 0);
+        object-position: 50% 50%;
+      }
+
+      /* Perspective and 3D transform setup */
+      .preserve-3d {
+        transform-style: preserve-3d;
+        user-select: none;
+        touch-action: none;
+        transform: perspective(500px);
+      }
+
+      /* Carousel navigation dots styling */
+      .navigation {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 10px;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .dot.active {
+        background-color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="carousel-container">
+        <!-- This is the exact snippet from code.html -->
+        <div
+          style="
+            transform-style: preserve-3d;
+            user-select: none;
+            touch-action: none;
+            transform: perspective(500px);
+          "
+        >
+          <div
+            class="carousel"
+            data-framer-name="Carousel"
+            style="transform-style: preserve-3d"
+          >
+            <div class="arms" data-framer-name="Arms">
+              <div
+                class="arm"
+                data-framer-name="Arm 1"
+                style="transform: rotateY(90deg)"
+              >
+                <div class="video-container" style="transform: rotateY(90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1554080353-a576cf803bda?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGhvdG9ncmFwaHl8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Nature Photography"
+                  />
+                </div>
+                <div class="video-container" style="transform: rotateY(-90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1598209279122-8e08eb5c6117?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHBob3RvZ3JhcGh5fGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=80"
+                    alt="Travel Photography"
+                  />
+                </div>
+              </div>
+              <div
+                class="arm"
+                data-framer-name="Arm 2"
+                style="transform: rotateY(120deg)"
+              >
+                <div class="video-container" style="transform: rotateY(90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1559827291-72ee739d0d9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fHBob3RvZ3JhcGh5fGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=80"
+                    alt="Architecture Photography"
+                  />
+                </div>
+                <div class="video-container" style="transform: rotateY(-90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1587502536575-6dfba0a6e017?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8b2NlYW58ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Ocean Photography"
+                  />
+                </div>
+              </div>
+              <div
+                class="arm"
+                data-framer-name="Arm 3"
+                style="transform: rotateY(150deg)"
+              >
+                <div class="video-container" style="transform: rotateY(90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1610128114197-485d933885c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzB8fGFuaW1hbHN8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Wildlife Photography"
+                  />
+                </div>
+                <div class="video-container" style="transform: rotateY(-90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1578645635737-633156c5a544?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fGNpdHlzY2FwZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Cityscape Photography"
+                  />
+                </div>
+              </div>
+              <div
+                class="arm"
+                data-framer-name="Arm 4"
+                style="transform: rotateY(180deg)"
+              >
+                <div class="video-container" style="transform: rotateY(90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1509549649946-f1b6276d4f35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzR8fGZsb3dlcnN8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Flower Photography"
+                  />
+                </div>
+                <div class="video-container" style="transform: rotateY(-90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1543039625-14cbd3802e7d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXVyb3JhJTIwYm9yZWFsaXN8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Aurora Photography"
+                  />
+                </div>
+              </div>
+              <div
+                class="arm"
+                data-framer-name="Arm 5"
+                style="transform: rotateY(0deg)"
+              >
+                <div class="video-container" style="transform: rotateY(90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fG1vdW50YWluc3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Mountain Photography"
+                  />
+                </div>
+                <div class="video-container" style="transform: rotateY(-90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1559666126-84f389727b9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8c3VucmlzZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Sunrise Photography"
+                  />
+                </div>
+              </div>
+              <div
+                class="arm"
+                data-framer-name="Arm 6"
+                style="transform: rotateY(30deg)"
+              >
+                <div class="video-container" style="transform: rotateY(90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8bmF0dXJlfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=80"
+                    alt="Nature Photography"
+                  />
+                </div>
+                <div class="video-container" style="transform: rotateY(-90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGhpc3RvcmljYWwlMjBhcmNoaXRlY3R1cmV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Historical Architecture"
+                  />
+                </div>
+              </div>
+              <div
+                class="arm"
+                data-framer-name="Arm 7"
+                style="transform: rotateY(60deg)"
+              >
+                <div class="video-container" style="transform: rotateY(90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGFuZHNjYXBlfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=80"
+                    alt="Landscape Photography"
+                  />
+                </div>
+                <div class="video-container" style="transform: rotateY(-90deg)">
+                  <img
+                    src="https://images.unsplash.com/photo-1682687982134-2ac563b2228b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxzZWFyY2h8MXx8bmlnaHQlMjBza3l8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Night Sky Photography"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation dots -->
+        <div class="navigation">
+          <div class="dot active" data-index="0"></div>
+          <div class="dot" data-index="1"></div>
+          <div class="dot" data-index="2"></div>
+          <div class="dot" data-index="3"></div>
+          <div class="dot" data-index="4"></div>
+          <div class="dot" data-index="5"></div>
+          <div class="dot" data-index="6"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Get carousel elements
+        const carousel = document.querySelector(".carousel");
+        const arms = document.querySelector(".arms");
+        const dots = document.querySelectorAll(".dot");
+
+        let startX, startY;
+        let currentRotation = 0;
+        let isDragging = false;
+        let currentIndex = 0;
+        const angleStep = 30; // 30 degrees per step (360 / 12 arms)
+
+        // Image hover effect
+        const images = document.querySelectorAll(".video-container img");
+        images.forEach((img) => {
+          img.addEventListener("mouseover", () => {
+            img.style.transform = "scale(1.05)";
+            img.style.transition = "transform 0.3s ease";
+          });
+
+          img.addEventListener("mouseout", () => {
+            img.style.transform = "scale(1)";
+            img.style.transition = "transform 0.3s ease";
+          });
+        });
+
+        // Touch and mouse event handlers
+        carousel.addEventListener("mousedown", startDrag);
+        carousel.addEventListener("touchstart", startDrag, { passive: true });
+
+        window.addEventListener("mousemove", drag);
+        window.addEventListener("touchmove", drag, { passive: true });
+
+        window.addEventListener("mouseup", endDrag);
+        window.addEventListener("touchend", endDrag);
+
+        // Navigate to specific index with or without animation
+        function goToIndex(index, animated = true) {
+          currentIndex = index;
+          let targetRotation = -index * angleStep;
+
+          // Don't overwrite currentRotation on initialization
+          if (animated) {
+            currentRotation = targetRotation;
+          }
+
+          arms.style.transform = `rotateY(${targetRotation}deg)`;
+
+          // Update active dot
+          dots.forEach((dot, i) => {
+            if (i === index) {
+              dot.classList.add("active");
+            } else {
+              dot.classList.remove("active");
+            }
+          });
+        }
+
+        // Handle dot navigation
+        dots.forEach((dot) => {
+          dot.addEventListener("click", () => {
+            const index = parseInt(dot.getAttribute("data-index"));
+            goToIndex(index, true); // Animate when clicking dots
+          });
+        });
+
+        // Drag start handler
+        function startDrag(e) {
+          isDragging = true;
+          carousel.style.cursor = "grabbing";
+
+          // Get starting position
+          if (e.type === "touchstart") {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+          } else {
+            startX = e.clientX;
+            startY = e.clientY;
+          }
+        }
+
+        // Drag handler
+        function drag(e) {
+          if (!isDragging) return;
+
+          let clientX, clientY;
+          if (e.type === "touchmove") {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+          } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+          }
+
+          const deltaX = clientX - startX;
+
+          // Update rotation
+          let newRotation = currentRotation + deltaX * 0.5;
+          currentRotation = newRotation; // Update current rotation immediately
+          arms.style.transform = `rotateY(${newRotation}deg)`;
+
+          // Update starting position for next movement calculation
+          startX = clientX;
+        }
+
+        // End drag handler
+        function endDrag() {
+          if (!isDragging) return;
+          isDragging = false;
+          carousel.style.cursor = "grab";
+
+          // Keep the current rotation as is - no snapping
+
+          // Just update the dot indicators based on the closest position
+          let normalizedAngle = currentRotation % 360;
+          // Convert to positive angle for easier calculation
+          if (normalizedAngle < 0) normalizedAngle += 360;
+
+          // Find the closest dot position
+          let closestIndex =
+            Math.round(normalizedAngle / angleStep) % (360 / angleStep);
+          if (closestIndex >= dots.length) closestIndex = 0;
+          currentIndex = closestIndex;
+
+          // Update active dot based on closest position
+          dots.forEach((dot, i) => {
+            if (i === closestIndex) {
+              dot.classList.add("active");
+            } else {
+              dot.classList.remove("active");
+            }
+          });
+        }
+
+        // Initialize - without animation to avoid overwriting currentRotation
+        goToIndex(0, false);
+      });
+    </script>
+  </body>
+</html>
