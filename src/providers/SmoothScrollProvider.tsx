@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { initSmoothScroll } from '../utils/smoothScroll';
+import {initSmoothScroll} from "@/app/utils/smoothScroll";
 
 export default function SmoothScrollProvider({
   children,

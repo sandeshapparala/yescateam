@@ -1,6 +1,6 @@
-import YescaHome from "./components/YescaHome";
+import YescaHome from "../components/YescaHome";
 import Link from "next/link";
-import ThemeToggle from "./components/ThemeToggle";
+import {ThemeToggle} from "@/components/ThemeToggle";
 
 export default function Home() {
   return (

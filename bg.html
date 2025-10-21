@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unicorn Studio Background (Fixed)</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: #000; /* avoids gray flash */
+      overflow: hidden;
+    }
+    /* Full-viewport background container */
+    .unicorn-bg {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0; /* behind content */
+      /* if you want pointer interactions with the scene, remove the next line */
+      pointer-events: none;
+      transform: scale(1.1); /* Slightly scale up to hide blur edges */
+    }
+    
+    /* New blur overlay layer */
+    .blur-overlay {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1; /* above background, below content */
+      pointer-events: none;
+      /* backdrop-filter: blur(80px);
+      -webkit-backdrop-filter: blur(80px); */
+      background: rgba(0, 0, 0, 0.1); /* Slight dark tint for better blur visibility */
+    }
+    
+    .content {
+      position: relative;
+      z-index: 2; /* above blur overlay */
+      color: #fff;
+      text-align: center;
+      padding-top: 20%;
+      font-family: system-ui, sans-serif;
+    }
+    /* Make the internal canvas fill its parent */
+    #unicorn-root, #unicorn-root canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <!-- Unicorn Studio Background -->
+  <div class="unicorn-bg">
+    <div id="unicorn-root"
+         data-us-project="uyHjeqAD3OkD10tavjsD"
+         data-scene-id="id-3zimblm6fyxon1vrlpff59">
+      <!-- Let Unicorn Studio manage the canvas.
+           If you keep a manual <canvas>, it's fine; the styles above make it fill. -->
+      <canvas aria-label="Unicorn Studio Scene" role="img"></canvas>
+    </div>
+  </div>
+
+  <!-- New blur overlay layer -->
+  <div class="blur-overlay"></div>
+
+  <!-- Your foreground content -->
+  <div class="content">
+    <h1>Hello World</h1>
+    <p>This sits on top of your Unicorn Studio background 🎉</p>
+  </div>
+
+  <script>
+    (function () {
+      function initUnicornStudio() {
+        if (!window.__unicornStudioLoaded) {
+          window.__unicornStudioLoaded = true;
+          window.UnicornStudio = window.UnicornStudio || { isInitialized: false };
+
+          var script = document.createElement("script");
+          script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
+          script.onload = initializeUnicorn;
+          (document.head || document.body).appendChild(script);
+        } else {
+          initializeUnicorn();
+        }
+      }
+
+      function initializeUnicorn() {
+        if (typeof UnicornStudio !== "undefined" && typeof UnicornStudio.init === "function") {
+          try {
+            window.UnicornStudio.isInitialized = false;
+            /* IMPORTANT: no args — it auto-detects elements with data-us-project/scene-id */
+            UnicornStudio.init();
+            window.UnicornStudio.isInitialized = true;
+          } catch (err) {
+            console.error("UnicornStudio initialization failed:", err);
+          }
+        } else {
+          console.warn("UnicornStudio runtime not available yet.");
+        }
+      }
+
+      // Run after load to avoid race conditions
+      if (document.readyState === "complete" || document.readyState === "interactive") {
+        initUnicornStudio();
+      } else {
+        window.addEventListener("load", initUnicornStudio);
+      }
+
+      // Optional: if you’re using Astro client-side routing, re-init on navigations
+      document.addEventListener("astro:page-load", function () {
+        setTimeout(initializeUnicorn, 100);
+      });
+      document.addEventListener("astro:after-swap", function () {
+        setTimeout(initializeUnicorn, 100);
+      });
+    })();
+  </script>
+</body>
+</html>

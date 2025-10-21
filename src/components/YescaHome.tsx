@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { initSmoothScroll } from '../utils/smoothScroll';
+import {initSmoothScroll} from "@/app/utils/smoothScroll";
 
 const YescaHome = () => {
   // Reference for animations

@@ -1,11 +1,29 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+/* eslint-disable */
+'use client';
+
 import React from 'react'
 import Image from 'next/image'
-import Carousel3D from '../components/Carousel3D'
+import Link from 'next/link'
+import Carousel3D from '../../components/home/Carousel3D'
+import UnicornGradientBackground from '../../components/home/unicorn/UnicornGradientBackground'
+import UnicornInteractiveBackground from '../../components/home/unicorn/UnicornInteractiveBackground';
+import UnicornBackground from '../../components/home/unicorn/UnicornBackground';
+import { Button } from '@/components/ui/button';
 
 const page = () => {
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-background via-muted/50 to-background text-foreground font-[family-name:DIN_Pro,Arial,sans-serif] overflow-x-hidden transition-colors duration-300">
-      <div className="flex flex-col items-center justify-center min-h-screen px-5 py-5 text-center relative lg:px-20 lg:py-5">
+    <>
+      {/* Unicorn Studio Gradient Background Component */}
+      {/* <UnicornGradientBackground/>*/}
+      {/* <UnicornInteractiveBackground  enableInteraction={false} />*/}
+      <UnicornBackground/>
+
+
+
+      <div className="w-full min-h-screen text-foreground overflow-x-hidden transition-colors duration-300 relative z-10">
+        <div className="flex flex-col items-center justify-center min-h-screen px-5 py-5 text-center relative lg:px-20 lg:py-5">
         {/* YESCA Logo */}
         <div className="mb-5 drop-shadow-[0_0_20px_rgba(var(--foreground)/0.3)] lg:mb-5">
           <Image
@@ -17,34 +35,49 @@ const page = () => {
             priority
           />
         </div>
-        
+
         {/* Organization Name */}
         <div className="text-xs font-light text-muted-foreground tracking-[3px] mb-0 uppercase opacity-100 leading-relaxed md:text-sm md:tracking-[2px] md:mb-0 lg:text-base lg:mb-0">
           YOUTH EVANGELISTIC SOLDIERS OF CHRISTIAN ASSEMBLIES
         </div>
-        
+
         {/* Main Heading */}
-        <h1 className="text-4xl font-bold text-foreground my-2 leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)] font-[family-name:Dancing_Script,cursive] uppercase tracking-wide md:text-5xl md:my-2 lg:text-7xl lg:my-10 xl:text-7xl">
-          EMPOWERING<br />
-          YOUTH IN CHRIST
+        <h1 className="text-4xl text-foreground my-2 leading-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)] pacifico-font tracking-wide md:text-5xl md:my-2 lg:text-7xl lg:my-10 lg:mb-10 xl:text-[86px]">
+          Empowering 
+Youth in Christ
         </h1>
-        
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 mb-8 md:mb-10 lg:mb-12">
+          <Link href="/about">
+            <Button variant="default" size="lg" className="font-semibold">
+              About YESCA
+            </Button>
+          </Link>
+          <Link href="/yc26">
+            <Button variant="outline" size="lg" className="font-semibold">
+              YC26
+            </Button>
+          </Link>
+        </div>
+
         {/* 3D Carousel */}
         <div className="w-full my-8 flex justify-center items-center md:my-10 lg:my-15">
           <Carousel3D />
         </div>
-        
+
         {/* Bottom Text */}
         <div className="mt- text-center">
-          <h2 className="text-2xl font-bold text-foreground mb-2 uppercase tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)] font-[family-name:DIN_Pro_Bold,DIN_Pro,Arial,sans-serif] md:text-3xl md:mb-2 lg:text-4xl lg:mb-3">
+          <h2 className="text-xl font-bold text-foreground mb-1 uppercase tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)] font-[family-name:DIN_Pro_Bold,DIN_Pro,Arial,sans-serif] md:text-2xl md:mb-1 lg:text-2xl lg:mb-0">
             30 YEARS OF BUILDING
           </h2>
-          <h3 className="text-2xl font-bold text-foreground m-0 uppercase tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)] font-[family-name:DIN_Pro_Bold,DIN_Pro,Arial,sans-serif] md:text-3xl lg:text-4xl">
+          <h3 className="text-xl font-bold text-foreground m-0 uppercase tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)] font-[family-name:DIN_Pro_Bold,DIN_Pro,Arial,sans-serif] md:text-2xl lg:text-2xl">
             YOUTH IN FAITH AND CHRISTIANITY
           </h3>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
