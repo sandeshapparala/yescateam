@@ -16,7 +16,7 @@ const Hero = () => {
       </div>
 
       {/* Hero Content */}
-      <div className="relative z-10 w-full min-h-screen">
+      <div className="relative z-10 w-full min-h-screen pb-8">
         <div className="flex flex-col items-center justify-center min-h-screen px-5 py-5 text-center relative lg:px-20 lg:py-5">
           {/* YESCA Logo */}
           <div className="mb-5 drop-shadow-[0_0_20px_rgba(var(--foreground)/0.3)] lg:mb-5">

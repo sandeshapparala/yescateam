@@ -67,7 +67,7 @@ const About = () => {
 
       <div className="font-geist flex h-screen items-center justify-center gap-2 px-8 z-100">
 
-        <div className="absolute left-1/2 top-[5%] grid -translate-x-1/2 content-start justify-items-center gap-6 text-center max-w-4xl z-100">
+        <div className="absolute left-1/2 top-[3%] grid -translate-x-1/2 content-start justify-items-center gap-6 text-center max-w-4xl z-100">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">About YESCA</h2>
           <p className="text-lg md:text-xl text-foreground leading-relaxed mb-4">
             Since 1994, Youth Evangelistic Soldiers of Christian Assemblies (YESCA) has been empowering young people to live out their faith boldly. Through annual camps, discipleship programs, and community building, we&apos;ve shaped thousands of youth into strong Christian leaders.
@@ -90,7 +90,7 @@ const About = () => {
         <Column images={[images[6], images[7], images[8]]} y={y3} />
         <Column images={[images[6], images[7], images[8]]} y={y4} />
       </div>
-      <div className="font-geist relative flex h-screen items-center justify-center gap-2 px-8 z-100 bg-accent">
+      <div className="font-geist relative flex h-screen items-center justify-center gap-2 px-8 z-100">
         <div className="absolute left-1/2 top-[20%] grid -translate-x-1/2 content-start justify-items-center gap-6 text-center max-w-3xl">
           <h3 className="text-3xl md:text-4xl font-bold mb-4">Join Us at YC26</h3>
           <p className="text-lg text-muted-foreground leading-relaxed">
