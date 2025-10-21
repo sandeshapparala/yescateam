@@ -70,10 +70,10 @@ const About = () => {
         <div className="absolute left-1/2 top-[5%] grid -translate-x-1/2 content-start justify-items-center gap-6 text-center max-w-4xl z-100">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">About YESCA</h2>
           <p className="text-lg md:text-xl text-foreground leading-relaxed mb-4">
-            Since 1994, Youth Evangelistic Soldiers of Christian Assemblies (YESCA) has been empowering young people to live out their faith boldly. Through annual camps, discipleship programs, and community building, we've shaped thousands of youth into strong Christian leaders.
+            Since 1994, Youth Evangelistic Soldiers of Christian Assemblies (YESCA) has been empowering young people to live out their faith boldly. Through annual camps, discipleship programs, and community building, we&apos;ve shaped thousands of youth into strong Christian leaders.
           </p>
           <p className="text-lg md:text-xl text-foreground leading-relaxed">
-            For 30 years, we've created a space where youth can grow spiritually, build lasting friendships, and discover their purpose in Christ. Our mission is to equip the next generation with biblical truth, authentic faith, and a passion for serving God.
+            For 30 years, we&apos;ve created a space where youth can grow spiritually, build lasting friendships, and discover their purpose in Christ. Our mission is to equip the next generation with biblical truth, authentic faith, and a passion for serving God.
           </p>
           <span className="relative mt-8 max-w-[12ch] text-xs uppercase leading-tight opacity-40 after:absolute after:left-1/2 after:top-full after:h-16 after:w-px after:bg-gradient-to-b after:from-foreground/20 after:to-foreground after:content-['']">
             scroll to explore
