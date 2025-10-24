@@ -1,10 +1,10 @@
 // Payment Callback Page - User is redirected here after PhonePe payment
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
-export default function PaymentCallbackPage() {
+function PaymentCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState('verifying');
@@ -72,5 +72,25 @@ export default function PaymentCallbackPage() {
         <p className="text-sm text-muted-foreground mt-4">Please wait, do not refresh this page</p>
       </div>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="max-w-md w-full bg-card border border-border rounded-lg p-8 text-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+        <h2 className="text-xl font-semibold mb-2">Loading...</h2>
+        <p className="text-muted-foreground">Please wait</p>
+      </div>
+    </div>
+  );
+}
+
+export default function PaymentCallbackPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <PaymentCallbackContent />
+    </Suspense>
   );
 }
