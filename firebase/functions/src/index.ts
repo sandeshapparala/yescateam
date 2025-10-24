@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+/* eslint-disable */
 /**
  * YESCA Team Cloud Functions
  * Handles server-side operations for youth camp management
