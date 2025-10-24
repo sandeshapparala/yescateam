@@ -1,0 +1,101 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/roles/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role in ['super_admin', 'admin'];
+    }
+    
+    function isSuperAdmin() {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/roles/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role == 'super_admin';
+    }
+    
+    function isFrontDesk() {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/roles/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role in ['super_admin', 'admin', 'front_desk'];
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Members Collection
+    match /members/{memberId} {
+      allow read: if isFrontDesk() || isOwner(memberId);
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    
+    // Camps Collection
+    match /camps/{campId} {
+      allow read: if true; // Public read for camp info
+      allow write: if isAdmin();
+      
+      // Registrations Sub-collection
+      match /registrations/{registrationId} {
+        allow read: if isFrontDesk();
+        allow create: if true; // Public registration
+        allow update: if isAdmin();
+        allow delete: if isSuperAdmin();
+      }
+      
+      // Payments Sub-collection
+      match /payments/{paymentId} {
+        allow read: if isAdmin();
+        allow create: if isAdmin();
+        allow update: if isAdmin();
+        allow delete: if isSuperAdmin();
+      }
+      
+      // Announcements Sub-collection
+      match /announcements/{announcementId} {
+        allow read: if true; // Public read
+        allow write: if isAdmin();
+      }
+      
+      // Devotionals Sub-collection
+      match /devotionals/{devotionalId} {
+        allow read: if true; // Public read
+        allow write: if isAdmin();
+      }
+      
+      // Games Sub-collection
+      match /games/{gameId} {
+        allow read: if true; // Public read
+        allow write: if isAdmin();
+      }
+    }
+    
+    // Roles Collection
+    match /roles/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSuperAdmin();
+    }
+    
+    // Settings Collection
+    match /settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isSuperAdmin();
+    }
+    
+    // Audit Logs Collection
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn(); // System can create
+      allow update: if false; // Logs are immutable
+      allow delete: if isSuperAdmin();
+    }
+  }
+}
