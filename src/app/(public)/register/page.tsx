@@ -1,13 +1,13 @@
 // Registration Page - Handles both Normal and Faithbox Registration
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { RegistrationForm } from '@/components/registration/RegistrationForm';
 import { RegistrationType, REGISTRATION_CONFIGS } from '@/lib/registration/types';
 import { RegistrationFormData } from '@/lib/validations/registration';
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const searchParams = useSearchParams();
   const type = (searchParams.get('type') as RegistrationType) || 'normal';
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -175,5 +175,24 @@ export default function RegisterPage() {
         isLoading={isSubmitting}
       />
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-background py-12 px-4 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">Loading registration form...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <RegisterPageContent />
+    </Suspense>
   );
 }
