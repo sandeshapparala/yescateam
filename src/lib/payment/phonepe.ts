@@ -22,7 +22,7 @@ export const PHONEPE_CONFIG = {
   CLIENT_VERSION: process.env.PHONEPE_CLIENT_VERSION,
   CLIENT_SECRET: process.env.PHONEPE_CLIENT_SECRET,
   API_BASE_URL: process.env.PHONEPE_BASE_URL,
-  REDIRECT_URL: process.env.NEXT_PUBLIC_URL + '/register/payment-callback?from=phonepe',
+  REDIRECT_URL_BASE: process.env.NEXT_PUBLIC_URL + '/register/payment-callback',
 };
 
 /**
@@ -62,6 +62,9 @@ export async function createPhonePeOrder(authToken: string, orderData: {
 }) {
   const orderUrl = `${PHONEPE_CONFIG.API_BASE_URL}/checkout/v2/pay`;
   
+  // Include merchantOrderId in redirect URL for reliable recovery
+  const redirectUrl = `${PHONEPE_CONFIG.REDIRECT_URL_BASE}?from=phonepe&merchantOrderId=${orderData.merchantOrderId}`;
+  
   const payload = {
     merchantOrderId: orderData.merchantOrderId,
     amount: orderData.amount,
@@ -69,7 +72,7 @@ export async function createPhonePeOrder(authToken: string, orderData: {
     paymentFlow: {
       type: 'PG_CHECKOUT',
       merchantUrls: {
-        redirectUrl: PHONEPE_CONFIG.REDIRECT_URL,
+        redirectUrl,
       },
     },
   };

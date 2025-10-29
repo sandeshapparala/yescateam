@@ -20,26 +20,57 @@ export async function POST(request: NextRequest) {
     const formData = validationResult.data;
     const registrationType = body.registration_type || 'normal';
 
-    // Get registration fee based on type
-    const fees: Record<string, number> = {
-      normal: 500,
-      faithbox: 250,
+    // Get amount from request (user-selected variable pricing)
+    const amount = body.amount || 300; // Fallback to 300 if not provided
+
+    // Validate amount based on registration type
+    const minAmounts: Record<string, number> = {
+      normal: 300,
+      faithbox: 50,
       kids: 300,
     };
-    const amount = fees[registrationType] || 500;
+    const maxAmount = 1000;
+    
+    const minAmount = minAmounts[registrationType] || 300;
+    if (amount < minAmount || amount > maxAmount) {
+      return NextResponse.json(
+        { error: `Amount must be between ₹${minAmount} and ₹${maxAmount}` },
+        { status: 400 }
+      );
+    }
 
     // Generate unique merchant order ID
     const merchantOrderId = generateTransactionId();
+    const timestamp = new Date().toISOString();
 
-    // Store pending payment data in Firestore (temporary)
-    const pendingPaymentRef = adminDb.collection('pending_payments').doc(merchantOrderId);
-    await pendingPaymentRef.set({
+    // Save all form data to yc26/pending_registrations before payment
+    const pendingRegRef = adminDb.collection('camps').doc('YC26').collection('pending_registrations').doc(merchantOrderId);
+    await pendingRegRef.set({
       merchant_order_id: merchantOrderId,
       registration_type: registrationType,
       amount,
-      form_data: formData,
-      payment_status: 'PENDING',
-      created_at: new Date().toISOString(),
+      // All form fields
+      full_name: formData.full_name,
+      phone_number: formData.phone_number,
+      gender: formData.gender,
+      age: formData.age,
+      dob: formData.dob || null,
+      believer: formData.believer === 'yes',
+      church_name: formData.church_name,
+      address: formData.address,
+      fathername: formData.fathername || null,
+      marriage_status: formData.marriage_status || null,
+      baptism_date: formData.baptism_date || null,
+      camp_participated_since: formData.camp_participated_since || null,
+      education: formData.education || null,
+      occupation: formData.occupation || null,
+      future_goals: formData.future_goals || null,
+      current_skills: formData.current_skills || null,
+      desired_skills: formData.desired_skills || null,
+      // Payment tracking
+      payment_status: 'pending',
+      status: 'pending',
+      created_at: timestamp,
       expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes
     });
 
@@ -57,8 +88,8 @@ export async function POST(request: NextRequest) {
     
     console.log('PhonePe Order Response:', JSON.stringify(orderResponse, null, 2));
 
-    // Store order ID in pending payment
-    await pendingPaymentRef.update({
+    // Store order ID in pending registration
+    await pendingRegRef.update({
       phonepe_order_id: orderResponse.orderId,
       payment_state: orderResponse.state,
     });

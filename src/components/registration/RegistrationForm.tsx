@@ -1,23 +1,84 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-/* eslint-disable */
-
-// Registration Form Component
+// Registration Form Component - Clean Structure with Field Configuration
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { registrationSchema, type RegistrationFormData } from '@/lib/validations/registration';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import { FormFieldWrapper } from '@/components/registration/FormFieldWrapper';
 import { RegistrationType, REGISTRATION_CONFIGS } from '@/lib/registration/types';
+import { DynamicFormSection } from './DynamicFormSection';
+import { PriceSelector } from './PriceSelector';
+
+// Zod Schema - Defined in Form Component
+const registrationSchema = z.object({
+  full_name: z.string().min(2, 'Name must be at least 2 characters'),
+  phone_number: z.string().regex(/^[6-9]\d{9}$/, 'Enter valid 10-digit mobile number'),
+  gender: z.enum(['M', 'F'], { message: 'Please select gender' }),
+  age: z.number().min(1, 'Age must be at least 1').max(100, 'Age must be less than 100'),
+  dob: z.string().optional(),
+  believer: z.enum(['yes', 'no'], { message: 'Please select believer status' }),
+  church_name: z.string().min(2, 'Church name is required'),
+  address: z.string().min(3, 'Address is required'),
+  fathername: z.string().optional(),
+  marriage_status: z.enum(['single', 'married', 'divorced', 'widowed']).optional(),
+  baptism_date: z.string().optional(),
+  camp_participated_since: z.string().optional(),
+  education: z.string().optional(),
+  occupation: z.string().optional(),
+  future_goals: z.string().optional(),
+  current_skills: z.string().optional(),
+  desired_skills: z.string().optional(),
+});
+
+type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 interface RegistrationFormProps {
   registrationType: RegistrationType;
-  onSubmit: (data: RegistrationFormData) => Promise<void>;
+  onSubmit: (data: RegistrationFormData, amount: number) => Promise<void>;
   isLoading?: boolean;
 }
+
+// Field Configuration - Clean JSON-like structure (Single Section)
+const formSections = [
+  {
+    title: "Registration Details",
+    titleTe: "నమోదు వివరాలు",
+    description: "Please fill in all required fields",
+    descriptionTe: "దయచేసి అన్ని అవసరమైన ఫీల్డ్‌లను పూరించండి",
+    fields: [
+      { name: "full_name", type: "input" as const, label: "Full Name - పూర్తి పేరు", required: true, placeholder: "Enter your full name" },
+      { name: "phone_number", type: "input" as const, label: "Phone Number - ఫోన్ నంబర్", required: true, placeholder: "10-digit mobile number" },
+      { name: "gender", type: "radio" as const, label: "Gender - లింగం", required: true, options: [
+        { value: "M", label: "Male (పురుషుడు)" },
+        { value: "F", label: "Female (స్త్రీ)" },
+      ]},
+      { name: "age", type: "number" as const, label: "Age - వయస్సు", required: true, placeholder: "Enter your age" },
+      { name: "dob", type: "date" as const, label: "Date of Birth - పుట్టిన తేదీ" },
+      { name: "fathername", type: "input" as const, label: "Father Name", placeholder: "Enter father's name" },
+      { name: "believer", type: "radio" as const, label: "Believer?", required: true, options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ]},
+      { name: "church_name", type: "input" as const, label: "Church - సంఘము", required: true, placeholder: "Enter your church name" },
+      { name: "address", type: "input" as const, label: "Address - అడ్రస్", required: true, placeholder: "Enter your full address" },
+      { name: "marriage_status", type: "select" as const, label: "Marriage Status - వైవాహిక స్థితి", options: [
+        { value: "single", label: "Single" },
+        { value: "married", label: "Married" },
+        { value: "divorced", label: "Divorced" },
+        { value: "widowed", label: "Widowed" },
+      ]},
+      { name: "baptism_date", type: "date" as const, label: "Date of Baptism - రక్షింపబడిన తేదీ" },
+      { name: "camp_participated_since", type: "input" as const, label: "Camp Participated Since", placeholder: "e.g., YC25, YC24" },
+      { name: "education", type: "input" as const, label: "Education - మీ చదువు", placeholder: "Your education level" },
+      { name: "occupation", type: "input" as const, label: "Occupation - వృత్తి", placeholder: "Your occupation" },
+      { name: "future_goals", type: "input" as const, label: "Future Goals - భవిష్యత్తు లక్ష్యాలు", placeholder: "Your future goals" },
+      { name: "current_skills", type: "input" as const, label: "Current Skills - ప్రస్తుత నైపుణ్యాలు", placeholder: "Skills you currently have" },
+      { name: "desired_skills", type: "input" as const, label: "Desired Skills", placeholder: "Skills you want to learn" },
+    ],
+  },
+];
 
 export function RegistrationForm({ 
   registrationType, 
@@ -26,359 +87,81 @@ export function RegistrationForm({
 }: RegistrationFormProps) {
   const config = REGISTRATION_CONFIGS[registrationType];
   
+  // Price state - default based on registration type
+  const getDefaultPrice = () => {
+    switch (registrationType) {
+      case 'normal': return 300;
+      case 'faithbox': return 50;
+      case 'kids': return 300;
+      default: return 300;
+    }
+  };
+  
+  const [selectedAmount, setSelectedAmount] = useState(getDefaultPrice());
+  
   const form = useForm<RegistrationFormData>({
+    // @ts-expect-error - Zod version compatibility
     resolver: zodResolver(registrationSchema),
     defaultValues: {
-      gender: undefined,
-      believer: undefined,
+      phone_number: '',
+      full_name: '',
+      age: 0,
       marriage_status: 'single',
     },
   });
 
   const handleSubmit = async (data: RegistrationFormData) => {
     try {
-      await onSubmit(data);
+      await onSubmit(data, selectedAmount);
     } catch (error) {
       console.error('Registration error:', error);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-primary mb-2">
+        <h1 className="text-4xl font-bold text-primary mb-2">
           {config.title}
         </h1>
         <p className="text-xl text-muted-foreground">
           {config.titleTelugu}
         </p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Registration Fee: ₹{config.fee}
-        </p>
       </div>
 
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-        {/* Personal Information */}
-        <div className="bg-card rounded-lg shadow-sm border p-6">
-          <h2 className="text-xl font-semibold mb-6 text-card-foreground">
-            Personal Information - వ్యక్తిగత సమాచారం
-          </h2>
-          
-          <div className="space-y-6">
-            {/* Full Name */}
-            <FormFieldWrapper
-              control={form.control}
-              name="full_name"
-              label="Full Name - మీ పేరు"
-              required
-            >
-              <input
-                type="text"
-                className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                {...form.register('full_name')}
-              />
-            </FormFieldWrapper>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {/* Dynamic Form Sections */}
+        {formSections.map((section, index) => (
+          <DynamicFormSection
+            key={index}
+            section={section}
+            form={form}
+          />
+        ))}
 
-            {/* Phone Number */}
-            <FormFieldWrapper
-              control={form.control}
-              name="phone_number"
-              label="Phone Number - ఫోన్ నంబర్"
-              required
-            >
-              <div className="flex">
-                <span className="inline-flex items-center px-3 border border-r-0 border-input bg-muted rounded-l-md text-muted-foreground">
-                  +91
-                </span>
-                <input
-                  type="tel"
-                  placeholder="10-digit mobile number"
-                  className="flex-1 px-4 py-2 border border-input bg-background rounded-r-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                  {...form.register('phone_number')}
-                />
-              </div>
-            </FormFieldWrapper>
-
-            {/* Gender - Radio Buttons */}
-            <FormFieldWrapper
-              control={form.control}
-              name="gender"
-              label="Gender - లింగం"
-              required
-            >
-              <div className="flex gap-6">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="M"
-                    className="w-4 h-4 text-primary focus:ring-2 focus:ring-ring"
-                    {...form.register('gender')}
-                  />
-                  <span className="text-foreground">Male - పురుషుడు</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="F"
-                    className="w-4 h-4 text-primary focus:ring-2 focus:ring-ring"
-                    {...form.register('gender')}
-                  />
-                  <span className="text-foreground">Female - స్త్రీ</span>
-                </label>
-              </div>
-            </FormFieldWrapper>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Age */}
-              <FormFieldWrapper
-                control={form.control}
-                name="age"
-                label="Age - వయస్సు"
-                required
-              >
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                  {...form.register('age', { valueAsNumber: true })}
-                />
-              </FormFieldWrapper>
-
-              {/* Date of Birth */}
-              <FormFieldWrapper
-                control={form.control}
-                name="dob"
-                label="Date of Birth - పుట్టిన తేదీ"
-              >
-                <input
-                  type="date"
-                  className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                  {...form.register('dob')}
-                />
-              </FormFieldWrapper>
-            </div>
-
-            {/* Father Name */}
-            <FormFieldWrapper
-              control={form.control}
-              name="fathername"
-              label="Father Name - తండ్రి పేరు"
-            >
-              <input
-                type="text"
-                className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                {...form.register('fathername')}
-              />
-            </FormFieldWrapper>
-          </div>
-        </div>
-
-        {/* Church Information */}
-        <div className="bg-card rounded-lg shadow-sm border p-6">
-          <h2 className="text-xl font-semibold mb-6 text-card-foreground">
-            Church Information - సంఘ సమాచారం
-          </h2>
-          
-          <div className="space-y-6">
-            {/* Believer - Radio Buttons */}
-            <FormFieldWrapper
-              control={form.control}
-              name="believer"
-              label="Believer? - విశ్వాసి?"
-              required
-            >
-              <div className="flex gap-6">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="yes"
-                    className="w-4 h-4 text-primary focus:ring-2 focus:ring-ring"
-                    {...form.register('believer')}
-                  />
-                  <span className="text-foreground">Yes - అవును</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="no"
-                    className="w-4 h-4 text-primary focus:ring-2 focus:ring-ring"
-                    {...form.register('believer')}
-                  />
-                  <span className="text-foreground">No - కాదు</span>
-                </label>
-              </div>
-            </FormFieldWrapper>
-
-            {/* Church Name */}
-            <FormFieldWrapper
-              control={form.control}
-              name="church_name"
-              label="Church - మీ సంఘము"
-              required
-            >
-              <input
-                type="text"
-                className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                {...form.register('church_name')}
-              />
-            </FormFieldWrapper>
-
-            {/* Address */}
-            <FormFieldWrapper
-              control={form.control}
-              name="address"
-              label="Address - అడ్రస్"
-              required
-            >
-              <textarea
-                rows={3}
-                className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
-                {...form.register('address')}
-              />
-            </FormFieldWrapper>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Marriage Status - Dropdown */}
-              <FormFieldWrapper
-                control={form.control}
-                name="marriage_status"
-                label="Marriage Status - వైవాహిక స్థితి"
-              >
-                <select
-                  className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                  {...form.register('marriage_status')}
-                >
-                  <option value="">Select - ఎంచుకోండి</option>
-                  <option value="single">Unmarried - అవివాహితుడు</option>
-                  <option value="married">Married - వివాహితుడు</option>
-                  <option value="divorced">Divorced - విడాకులు</option>
-                  <option value="widowed">Widowed - వితంతువు</option>
-                </select>
-              </FormFieldWrapper>
-
-              {/* Date of Baptism */}
-              <FormFieldWrapper
-                control={form.control}
-                name="baptism_date"
-                label="Date of Baptism - రక్షింపబడిన తేదీ"
-              >
-                <input
-                  type="date"
-                  className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                  {...form.register('baptism_date')}
-                />
-              </FormFieldWrapper>
-            </div>
-
-            {/* Camp Participated Since */}
-            <FormFieldWrapper
-              control={form.control}
-              name="camp_participated_since"
-              label="Camp Participated Since - క్యాంప్ లో పాల్గొనడం ఎప్పటి నుండి"
-            >
-              <input
-                type="text"
-                placeholder="e.g., YC25, YC24"
-                className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                {...form.register('camp_participated_since')}
-              />
-            </FormFieldWrapper>
-          </div>
-        </div>
-
-        {/* Additional Information */}
-        <div className="bg-card rounded-lg shadow-sm border p-6">
-          <h2 className="text-xl font-semibold mb-6 text-card-foreground">
-            Additional Information - అదనపు సమాచారం
-          </h2>
-          
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Education */}
-              <FormFieldWrapper
-                control={form.control}
-                name="education"
-                label="Education - మీ చదువు"
-              >
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                  {...form.register('education')}
-                />
-              </FormFieldWrapper>
-
-              {/* Occupation */}
-              <FormFieldWrapper
-                control={form.control}
-                name="occupation"
-                label="Occupation - వృత్తి"
-              >
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
-                  {...form.register('occupation')}
-                />
-              </FormFieldWrapper>
-            </div>
-
-            {/* Future Goals */}
-            <FormFieldWrapper
-              control={form.control}
-              name="future_goals"
-              label="Future Goals - భవిష్యత్తు లక్ష్యాలు"
-            >
-              <textarea
-                rows={3}
-                className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
-                {...form.register('future_goals')}
-              />
-            </FormFieldWrapper>
-
-            {/* Current Skills */}
-            <FormFieldWrapper
-              control={form.control}
-              name="current_skills"
-              label="Current Skills - ప్రస్తుత నైపుణ్యాలు"
-            >
-              <textarea
-                rows={2}
-                className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
-                {...form.register('current_skills')}
-              />
-            </FormFieldWrapper>
-
-            {/* Desired Skills */}
-            <FormFieldWrapper
-              control={form.control}
-                name="desired_skills"
-              label="Desired Skills - కావలసిన నైపుణ్యాలు"
-            >
-              <textarea
-                rows={2}
-                className="w-full px-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
-                {...form.register('desired_skills')}
-              />
-            </FormFieldWrapper>
-          </div>
-        </div>
+        {/* Price Selector */}
+        <PriceSelector
+          registrationType={registrationType}
+          value={selectedAmount}
+          onChange={setSelectedAmount}
+        />
 
         {/* Submit Button */}
-        <div className="flex justify-center pb-8">
+        <div className="mt-8">
           <Button
             type="submit"
             disabled={isLoading}
-            className="px-12 py-6 text-lg"
+            className="w-full py-6 text-lg font-semibold rounded-full"
             size="lg"
           >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Submitting...
+                Processing...
               </>
             ) : (
-              'Submit Registration - నమోదు చేయండి'
+              "Complete Registration"
             )}
           </Button>
         </div>

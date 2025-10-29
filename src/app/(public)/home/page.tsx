@@ -4,8 +4,11 @@
 'use client';
 
 import React from 'react'
-import Hero from '../../components/home/Hero'
+import Hero from '@/components/home/Hero'
 import { About } from '@/components/ui/skiper30'
+// import Link from 'next/link'
+// import { Button } from '@/components/ui/button'
+// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 const page = () => {
   return (
@@ -15,6 +18,8 @@ const page = () => {
 
       {/* About Section with Parallax Gallery */}
       <About />
+
+ 
     </>
   )
 }

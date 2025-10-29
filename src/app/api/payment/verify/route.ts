@@ -19,22 +19,22 @@ export async function GET(request: NextRequest) {
 
     console.log('Verifying payment for order:', merchantOrderId);
 
-    // Get pending payment data
-    const pendingPaymentRef = adminDb.collection('pending_payments').doc(merchantOrderId);
-    const pendingPaymentDoc = await pendingPaymentRef.get();
+    // Get pending registration data
+    const pendingRegRef = adminDb.collection('camps').doc('YC26').collection('pending_registrations').doc(merchantOrderId);
+    const pendingRegDoc = await pendingRegRef.get();
 
-    if (!pendingPaymentDoc.exists) {
-      console.error('Pending payment not found');
+    if (!pendingRegDoc.exists) {
+      console.error('Pending registration not found');
       return NextResponse.json(
-        { error: 'Pending payment not found', success: false },
+        { error: 'Pending registration not found', success: false },
         { status: 404 }
       );
     }
 
-    const pendingData = pendingPaymentDoc.data()!;
+    const pendingData = pendingRegDoc.data()!;
 
     // Check if already processed
-    if (pendingData.payment_status === 'COMPLETED') {
+    if (pendingData.payment_status === 'completed' || pendingData.status === 'completed') {
       console.log('Payment already processed');
       return NextResponse.json({
         success: true,
@@ -53,8 +53,14 @@ export async function GET(request: NextRequest) {
     const orderStatus = await checkPhonePeOrderStatus(authToken, merchantOrderId);
     console.log('Order status:', JSON.stringify(orderStatus, null, 2));
 
-    // If payment not completed, return status
+    // If payment not completed, update status to failed and return
     if (orderStatus.state !== 'COMPLETED') {
+      await pendingRegRef.update({
+        payment_status: 'failed',
+        status: 'failed',
+        payment_state: orderStatus.state,
+        failed_at: new Date().toISOString(),
+      });
       return NextResponse.json({
         success: false,
         state: orderStatus.state,
@@ -63,7 +69,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Payment completed - save to Firebase
-    const registrationFormData = pendingData.form_data;
     const registrationType = pendingData.registration_type;
     const timestamp = new Date().toISOString();
 
@@ -84,23 +89,23 @@ export async function GET(request: NextRequest) {
     // Create member document
     const memberData = {
       member_id: memberId,
-      full_name: registrationFormData.full_name,
-      phone_number: registrationFormData.phone_number,
-      gender: registrationFormData.gender,
-      age: registrationFormData.age,
-      dob: registrationFormData.dob || null,
-      believer: registrationFormData.believer === 'yes',
-      church_name: registrationFormData.church_name,
-      address: registrationFormData.address,
-      fathername: registrationFormData.fathername || null,
-      marriage_status: registrationFormData.marriage_status || null,
-      baptism_date: registrationFormData.baptism_date || null,
-      camp_participated_since: registrationFormData.camp_participated_since || null,
-      education: registrationFormData.education || null,
-      occupation: registrationFormData.occupation || null,
-      future_goals: registrationFormData.future_goals || null,
-      current_skills: registrationFormData.current_skills || null,
-      desired_skills: registrationFormData.desired_skills || null,
+      full_name: pendingData.full_name,
+      phone_number: pendingData.phone_number,
+      gender: pendingData.gender,
+      age: pendingData.age,
+      dob: pendingData.dob || null,
+      believer: pendingData.believer,
+      church_name: pendingData.church_name,
+      address: pendingData.address,
+      fathername: pendingData.fathername || null,
+      marriage_status: pendingData.marriage_status || null,
+      baptism_date: pendingData.baptism_date || null,
+      camp_participated_since: pendingData.camp_participated_since || null,
+      education: pendingData.education || null,
+      occupation: pendingData.occupation || null,
+      future_goals: pendingData.future_goals || null,
+      current_skills: pendingData.current_skills || null,
+      desired_skills: pendingData.desired_skills || null,
       created_at: timestamp,
       updated_at: timestamp,
     };
@@ -110,8 +115,8 @@ export async function GET(request: NextRequest) {
       registration_id: regId,
       member_id: memberId,
       camp_id: 'YC26',
-      full_name: registrationFormData.full_name,
-      phone_number: registrationFormData.phone_number,
+      full_name: pendingData.full_name,
+      phone_number: pendingData.phone_number,
       registration_type: registrationType,
       registration_date: timestamp,
       payment_status: 'completed',
@@ -138,7 +143,7 @@ export async function GET(request: NextRequest) {
       amount: pendingData.amount,
       payment_method: 'phonepe',
       payment_status: 'completed',
-      phone_number: registrationFormData.phone_number,
+      phone_number: pendingData.phone_number,
       payment_date: timestamp,
       phonepe_response: orderStatus,
       created_at: timestamp,
@@ -166,9 +171,10 @@ export async function GET(request: NextRequest) {
       lastUpdated: timestamp,
     });
 
-    // Update pending payment status
-    batch.update(pendingPaymentRef, {
-      payment_status: 'COMPLETED',
+    // Update pending registration status to completed
+    batch.update(pendingRegRef, {
+      payment_status: 'completed',
+      status: 'completed',
       member_id: memberId,
       registration_id: regId,
       completed_at: timestamp,
