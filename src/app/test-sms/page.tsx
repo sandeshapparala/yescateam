@@ -147,7 +147,7 @@ export default function TestSMSPage() {
                 </h4>
                 <ol className="text-xs space-y-1 text-muted-foreground">
                   <li>1. Enter your phone number</li>
-                  <li>2. Click "Send WhatsApp OTP" (or choose SMS in modal)</li>
+                  <li>2. Click &#34;Send WhatsApp OTP&#34; (or choose SMS in modal)</li>
                   <li>3. Receive 6-digit code via WhatsApp/SMS</li>
                   <li>4. Enter code to verify</li>
                   <li>5. Get authenticated with Firebase ✅</li>
