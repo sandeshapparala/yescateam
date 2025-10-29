@@ -205,12 +205,20 @@ function PaymentSuccessContent() {
           </div>
 
           {/* Actions */}
-          <button
-            onClick={() => window.location.href = '/'}
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-          >
-            Return to Home - హోమ్ కు వెళ్ళండి
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => window.location.href = '/profile'}
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium"
+            >
+              View My Profile - నా ప్రొఫైల్ చూడండి
+            </button>
+            <button
+              onClick={() => window.location.href = '/'}
+              className="px-6 py-3 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors"
+            >
+              Return to Home - హోమ్ కు వెళ్ళండి
+            </button>
+          </div>
         </div>
       </div>
     </div>

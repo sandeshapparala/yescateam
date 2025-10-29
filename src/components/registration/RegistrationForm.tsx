@@ -6,10 +6,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShieldCheck } from 'lucide-react';
 import { RegistrationType, REGISTRATION_CONFIGS } from '@/lib/registration/types';
 import { DynamicFormSection } from './DynamicFormSection';
 import { PriceSelector } from './PriceSelector';
+import { OTPVerificationModal } from '@/components/auth/OTPVerificationModal';
+import { auth } from '@/lib/firebase/config';
+import { onAuthStateChanged } from 'firebase/auth';
 
 // Zod Schema - Defined in Form Component
 const registrationSchema = z.object({
@@ -98,6 +101,10 @@ export function RegistrationForm({
   };
   
   const [selectedAmount, setSelectedAmount] = useState(getDefaultPrice());
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [isSendingOTP, setIsSendingOTP] = useState(false);
+  const [formDataToSubmit, setFormDataToSubmit] = useState<RegistrationFormData | null>(null);
   
   const form = useForm<RegistrationFormData>({
     // @ts-expect-error - Zod version compatibility
@@ -110,12 +117,65 @@ export function RegistrationForm({
     },
   });
 
-  const handleSubmit = async (data: RegistrationFormData) => {
-    try {
-      await onSubmit(data, selectedAmount);
-    } catch (error) {
-      console.error('Registration error:', error);
+  const handleVerifyAndSubmit = async (data: RegistrationFormData) => {
+    // Check if already verified
+    if (isVerified) {
+      // Already verified, proceed to payment
+      try {
+        await onSubmit(data, selectedAmount);
+      } catch (error) {
+        console.error('Registration error:', error);
+      }
+      return;
     }
+
+    // Need to verify phone first
+    setFormDataToSubmit(data);
+    setIsSendingOTP(true);
+
+    try {
+      // Send OTP via WhatsApp
+      const response = await fetch('/api/auth/send-otp-whatsapp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone_number: `+91${data.phone_number}` }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send OTP');
+      }
+
+      // Show OTP modal
+      setShowOTPModal(true);
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to send OTP');
+    } finally {
+      setIsSendingOTP(false);
+    }
+  };
+
+  const handleVerificationSuccess = async () => {
+    setIsVerified(true);
+    setShowOTPModal(false);
+
+    // Wait for auth state to be set
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user && formDataToSubmit) {
+        console.log('✅ User authenticated:', user.uid);
+        // Proceed to payment
+        try {
+          await onSubmit(formDataToSubmit, selectedAmount);
+        } catch (error) {
+          console.error('Registration error:', error);
+        }
+      }
+    });
+
+    // Cleanup
+    setTimeout(() => unsubscribe(), 5000);
   };
 
   return (
@@ -130,7 +190,7 @@ export function RegistrationForm({
         </p>
       </div>
 
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleVerifyAndSubmit)} className="space-y-6">
         {/* Dynamic Form Sections */}
         {formSections.map((section, index) => (
           <DynamicFormSection
@@ -147,24 +207,59 @@ export function RegistrationForm({
           onChange={setSelectedAmount}
         />
 
+        {/* Verification Status */}
+        {isVerified && (
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-center gap-3">
+            <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <div>
+              <p className="text-sm font-semibold text-green-800 dark:text-green-200">
+                Phone Verified Successfully
+              </p>
+              <p className="text-xs text-green-600 dark:text-green-400">
+                You can now proceed to payment
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Submit Button */}
         <div className="mt-8">
           <Button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isSendingOTP}
             className="w-full py-6 text-lg font-semibold rounded-full"
             size="lg"
           >
-            {isLoading ? (
+            {isSendingOTP ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Processing...
+                Sending OTP...
               </>
+            ) : isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Processing Payment...
+              </>
+            ) : isVerified ? (
+              "Proceed to Payment"
             ) : (
-              "Complete Registration"
+              <>
+                <ShieldCheck className="mr-2 h-5 w-5" />
+                Verify Phone & Continue
+              </>
             )}
           </Button>
         </div>
+
+        {/* OTP Verification Modal */}
+        {formDataToSubmit && (
+          <OTPVerificationModal
+            isOpen={showOTPModal}
+            onClose={() => setShowOTPModal(false)}
+            phoneNumber={`+91${formDataToSubmit.phone_number}`}
+            onVerificationSuccess={handleVerificationSuccess}
+          />
+        )}
       </form>
     </div>
   );

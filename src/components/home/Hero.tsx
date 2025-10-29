@@ -43,14 +43,14 @@ const Hero = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-4 mb-8 md:mb-10 lg:mb-12">
-            <Link href="/about">
+            <Link href="/signin">
               <Button variant="default" size="lg" className="font-semibold">
-                About YESCA
+                Sign In
               </Button>
             </Link>
-            <Link href="/yc26">
+            <Link href="/register">
               <Button variant="outline" size="lg" className="font-semibold">
-                YC26
+                Register
               </Button>
             </Link>
           </div>
